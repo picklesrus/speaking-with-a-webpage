@@ -191,7 +191,8 @@
 
     function newWebsocket() {
       var websocketPromise = new Promise(function(resolve, reject) {
-        var socket = new WebSocket('wss://' + location.host + '/transcribe');
+        // TODO: Stop hardcoding localhost and port
+        var socket = new WebSocket('ws://localhost:8080');
         socket.addEventListener('open', resolve);
         socket.addEventListener('error', reject);
       });
@@ -245,23 +246,26 @@
       }
     }
 
+    /**
+     * This function is called with the transcription result from the server.
+     */
     var transcript = {
       el: document.getElementById('transcript').childNodes[0],
       current: document.createElement('div')
     };
     transcript.el.appendChild(transcript.current);
-    /**
-     * This function is called with the transcription result from the server.
-     */
+    
     function onTranscription(e) {
-      var result = JSON.parse(e.data);
-      if (result.alternatives_) {
-        transcript.current.innerHTML = result.alternatives_[0].transcript_;
-      }
-      if (result.isFinal_) {
-        transcript.current = document.createElement('div');
-        transcript.el.appendChild(transcript.current);
-      }
+      console.log(e.data);
+    var result = JSON.parse(e.data);
+        if (result.alternatives) {
+         transcript.current.innerHTML = result.alternatives[0].transcript;
+        }
+        if (result.isFinal) {
+         transcript.current = document.createElement('div');
+          transcript.el.appendChild(transcript.current);
+        }
+        transcript.current.scrollIntoView();
     }
 
     // When the mic is resumed or paused, change the state of the websocket too
